@@ -55,4 +55,49 @@ public class Order {
         delivery.setOrder(this);
     }
 
+    // == 생성 메서드(편의메서드를 다 넣어 호출하면 한번에 되는 것), set보다 좋음. 생성할때만 한번에 쓰면 됨
+    // 그래서 연관관계 편의 메서드는 많이 쓰는 엔티티에다 놓는다. == //
+    public static Order createOrder(Member member, Delivery delivery, OrderItem... orderItems){
+        Order order = new Order();
+
+        order.setmember(member);
+        order.setDelivery(delivery);
+
+        for(OrderItem items : orderItems){
+            order.addOrderItem(items);
+        }
+        // 초기화 ORDER로 강제해놓았음.
+        order.setStatus(OrderStatus.ORDER);
+//       // 현재 시간 초기화
+        order.setOrderDate(LocalDateTime.now());
+        return order;
+    }
+
+    // == 비즈니스 로직 == //
+    // 주문 취소
+    public void cancel(){
+        if(delivery.getStatus() == DeliveryStatus.COMP){
+            throw new IllegalStateException("이미 배송 완료된 상품은 취소가 불가능 합니다.");
+        }
+        // 주문 취소
+        this.setStatus(OrderStatus.CANCEL);
+
+        // 주문 취소 되면서 재고를 원복시키 것
+        for(OrderItem items : this.orderItems){
+            items.cancel();
+        }
+    }
+
+    // == 조회 로직 == //
+    // 전체 주문 가격 조회
+    public int getTotalPrice(){
+        int totalPrice = 0;
+
+        for(OrderItem items : this.orderItems){
+            totalPrice += items.getTotalPrice();
+        }
+
+        return totalPrice;
+    }
 }
+
