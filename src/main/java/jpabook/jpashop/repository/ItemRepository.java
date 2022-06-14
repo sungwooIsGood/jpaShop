@@ -28,7 +28,7 @@ public class ItemRepository {
     }
     
     // 아이디값으로 하나만 조회
-    public Item findOnd(Long id){
+    public Item findOne(Long id){
         return em.find(Item.class, id);
     }
     
