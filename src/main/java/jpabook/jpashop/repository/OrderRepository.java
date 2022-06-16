@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
@@ -21,7 +22,20 @@ public class OrderRepository {
     }
 
     // == 검색 == //
-//    public List<Order> findAll(OrderSearch ordderSearch){}
+    public List<Order> findAll(OrderSearch orderSearch){
+
+//        정적 쿼리 특정 세부 문항을 선택했을 시 하지만 동적쿼리는 적용 어려움.
+        return em.createQuery("select o from Order o join o.member m" +
+                    " where o.status = :status " +
+                    " and m.name like :name", Order.class)
+                .setParameter("status",orderSearch.getOrderStatus())
+                .setParameter("name",orderSearch.getMemberName())
+//                .setFirstResult(1) // 페이징
+                .setMaxResults(1000) // 최대 1000건까지 가져오는 것.
+                .getResultList();
+
+        // 동적은 Querydsl로 처리
+    }
 
 
 }

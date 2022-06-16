@@ -35,7 +35,7 @@ public class MemberRepository {
 //    회원 전체 조회
     public List<Member> findAll(){
 //        전체조회는 JPQL을 사용
-        String query = "select m from member m";
+        String query = "select m from Member m";
         return em.createQuery(query, Member.class)
                 .getResultList();
     }
