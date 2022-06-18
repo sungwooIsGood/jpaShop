@@ -1,5 +1,6 @@
 package jpabook.jpashop.service;
 
+import jpabook.jpashop.domain.item.Book;
 import jpabook.jpashop.domain.item.Item;
 import jpabook.jpashop.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,19 @@ public class ItemService {
     public void saveItem(Item item){
         itemRepository.save(item);
     }
-    
+
+
+    @Transactional
+    public void updateItem(Long itemId, String name, int price, int stockQuantity){
+        Item findItem = itemRepository.findOne(itemId);
+
+        // 단발성으로 set을 쓰면 안된다.
+        // findItem.change(price, name, stockQuantity); 등 엔티티레벨에 넣어두는 것이 좋다.
+        findItem.setPrice(price);
+        findItem.setName(name);
+        findItem.setStockQuantity(stockQuantity);
+    }
+
     public List<Item> findItems(){
         return itemRepository.findAll();
     }
