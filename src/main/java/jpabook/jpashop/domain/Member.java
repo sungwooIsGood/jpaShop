@@ -17,6 +17,7 @@ public class Member {
     @Column(name = "member_id")
     private Long id;
 
+    /* @NotEmpty DTO단에서 @NotEmpty를 써야함 */
     private String name;
 
     @Embedded
