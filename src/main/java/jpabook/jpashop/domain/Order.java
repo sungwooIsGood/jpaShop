@@ -40,6 +40,9 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus status; // 주문상태 [order,cancel]
 
+
+
+
     //  == 연관관계 편의 메소드 ==
     public void setmember(Member member){
         this.member = member;
@@ -75,6 +78,9 @@ public class Order {
         order.setOrderDate(LocalDateTime.now());
         return order;
     }
+
+
+
 
     // == 비즈니스 로직 == //
     /**
