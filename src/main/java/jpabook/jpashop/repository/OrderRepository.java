@@ -2,7 +2,6 @@ package jpabook.jpashop.repository;
 
 import jpabook.jpashop.domain.Member;
 import jpabook.jpashop.domain.Order;
-import jpabook.jpashop.repository.order.simpleQuery.OrderSimpleQueryDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
@@ -68,7 +67,6 @@ public class OrderRepository {
 
         return resultList;
     }
-
     public List<Order> findAllWithMemberDelivery() {
         return em.createQuery(
                         "select o from Order o" +
@@ -76,5 +74,36 @@ public class OrderRepository {
                                 " join fetch o.delivery d", Order.class)
                 .getResultList();
     }
-    
+
+    public List<Order> findAllWithMemberDelivery(int offset, int limit) {
+        return em.createQuery(
+                        "select o from Order o" +
+                                " join fetch o.member m" +
+                                " join fetch o.delivery d", Order.class)
+                .setFirstResult(offset)
+                .setMaxResults(limit)
+                .getResultList();
+    }
+
+
+    public List<Order> findAllWithItem() {
+        /**
+         * 그냥 쿼리를 내보내면 join되어 데이터가 뻥튀기가 된다.
+         * ex) Order테이블에 order_id 4인 값이 있다. OrderItem테이블에 order_id 4가 2개(item을 두개 주문 했기에)있다.
+         * order의 id 4는 하나 OrderItem의 id 4는 두개 그래서
+         * order테이블에 데이터가 붙기 때문에 order의 값이 두개씩 출력된다.
+         * 나는 Order o 테이블의 튜플이 2개만 나오길 원한다. 하지만 4개의 튜플이 생긴다.
+         *
+         * 결론, 컬렉션을 페치조인 할 시 distinct를 넣어주자.
+         * 1. 데이터베이스의 distinct는 모든 데이터가 같아야 중복을 없애주지만,
+         * 2. JPA에서는 from 값의 Order ID가 같으면 중복을 제거해준다.
+         * */
+        return em.createQuery(
+                "select distinct o from Order o" +
+                        " join fetch o.member m" +
+                        " join fetch o.delivery d" +
+                        " join fetch o.orderItems oi" +
+                        " join fetch oi.item i", Order.class)
+                .getResultList();
+    }
 }

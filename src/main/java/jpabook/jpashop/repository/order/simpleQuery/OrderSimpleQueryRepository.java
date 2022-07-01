@@ -12,6 +12,11 @@ public class OrderSimpleQueryRepository {
 
     private final EntityManager em;
 
+    /**
+     * 그냥 Repository는 순수한 엔티티만 조회해야함.
+     * 그래서 dto를 조회하는 것이라면 따로 query문을 따로 저장하는 저장소를 만들어 주는게 좋다.
+     * repository의 용도가 애매해지는 것을 방지
+     * */
     public List<OrderSimpleQueryDto> findOrderDtos() {
 
         /**

@@ -112,11 +112,15 @@ public class MemberApiController {
             @PathVariable("id") Long id,
             @RequestBody @Valid UpdatememberRequest request){
 
+//        쿼리문만 날라간다.
         memberService.update(id,request.getName());
         /** 커맨드와 쿼리를 분리,
          * update()메서드에 반환 타입을 Member로 해도되지만
          * 커맨드와 쿼리(update,delete,insert)를 분리 시키는 것이 좋다. 그래서 다시 쿼리를 호출하는 것
         *  */
+
+//        update한 쿼리문을 엔티티 컨테이너에서
+//        findOne()메소드를 통해 Member반환타입으로 하였음
         Member findMember = memberService.findOne(id);
         return new UpdateMemberResponse(findMember.getId(), findMember.getName());
     }
