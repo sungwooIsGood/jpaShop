@@ -6,6 +6,8 @@ import jpabook.jpashop.domain.OrderItem;
 import jpabook.jpashop.domain.OrderStatus;
 import jpabook.jpashop.repository.OrderRepository;
 import jpabook.jpashop.repository.OrderSearch;
+import jpabook.jpashop.repository.query.OrderQueryDto;
+import jpabook.jpashop.repository.query.OrderQueryRepository;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.weaver.ast.Or;
@@ -25,6 +27,7 @@ public class OrderApiController {
      * XToMany
      * */
     private final OrderRepository orderRepository;
+    private final OrderQueryRepository orderQueryRepository;
 
     @GetMapping("/api/v1/orders")
     public List<Order> ordersV1(){
@@ -80,6 +83,14 @@ public class OrderApiController {
      * => 작동 원리: 1) join fetch 2) 페이징 처리 3) items는 지연로딩이라 계속 쿼리가 추가적으로 나가야하지만
      * default_batch_fetch_size로 인해 추가 in()쿼리가 나간다. 100이라 적었으면 100개를 한번에 가져와 준다.
      * 총 order 쿼리, items쿼리, item쿼리로 3개 밖에 나가지 않았다.
+     *
+     * 글로벌이 아닌 세세하게 하고 싶다면 Order객체에 OrderItems 변수에다 @BatchSize(size = 100)
+     * OrderItem 안에 Item은 XToOne이기 때문에 Item객체위에 @BatchSize(size = 100)를 적어준다.
+     * 하지만 글로벌로 해도 성능상 차이는 없다. size를 어떻게 적냐에 따라 달라진다.
+     * 적당한 사이즈가 좋다 100~1000 사이를 선택하는 것이 좋다.
+     * 데이터베이스마다 다르지만 1000이상했을 시 오류를 이르키는 것도 있기에 1000까지
+     * 순간부하에 대해 was DB가 버틸수 있다면 1000 그렇지 않다면 100 진짜 모르겠다 500
+     * 메모리에서 사용량은 같기 때문에 메모리에 대해 생각은 안해도 된다.
      * */
     @GetMapping("/api/v3.1/orders")
     public List<OrderDto> ordersV3_page(@RequestParam(value = "offset", defaultValue = "0") int offset,
@@ -95,6 +106,11 @@ public class OrderApiController {
                 .map(o -> new OrderDto(o))
                 .collect(Collectors.toList());
         return result;
+    }
+
+    @GetMapping("/api/v4/orders")
+    public List<OrderQueryDto> ordersV4(){
+        return orderQueryRepository.findOrderQueryDtos();
     }
 
     @Data
